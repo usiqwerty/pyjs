@@ -1,9 +1,8 @@
 from dataclasses import dataclass
-from typing import Iterable
+from typing import Iterable, Generator
 
 from pyjs.expressions import (AssignmentExpression, ReferenceExpression, StringLiteral, NumberLiteral,
                               CallExpression, Expression, MathExpression, TemplateLiteral, FunctionExpression)
-from pyjs.token_io import TokenIO
 from pyjs.tokenizer import tokenize, assignation_keywords, Token
 
 
@@ -22,13 +21,12 @@ class CombinedTokens:
                 yield expr_tok
 
 
-def combine(tokens: TokenIO, stop_on_first=False):
+def combine(tokens: Generator[Token, None, None], stop_on_first=False):
     groups = []
 
     was_dot = False
     is_function_def = False
-    while tokens.open:
-        tok = tokens.read()
+    for tok in tokens:
         # print(tok.type, tok.value)
         if tok.type == "SPACE":
             continue
@@ -124,10 +122,8 @@ def join_assignments_values(groups: list[Expression]):
 
 def parse(code: str) -> Iterable[Expression]:
     """Parse code into tree"""
-    tokens = list(tokenize(code))
-    g = TokenIO(tokens)
-
-    for x in join_assignments_values(combine(g)):
+    tokens_generator = tokenize(code)
+    for x in join_assignments_values(combine(tokens_generator)):
         if isinstance(x, Token) and x.type == 'SEMICOLON':
             continue
         yield x

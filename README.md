@@ -6,6 +6,9 @@ import pyjs
 
 tree = pyjs.parse("console.log('hello, world')")
 ```
+# Features
+- Not Selenium
+- Efficient parsing using generators
 
 ## JS support state
 
