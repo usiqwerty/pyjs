@@ -1,0 +1,47 @@
+from typing import Any
+
+from pyjs.expressions import Expression, AssignmentExpression, ReferenceExpression, CallExpression, \
+    LiteralValue, MathExpression, FunctionExpression
+
+
+class Environment:
+    objects: dict[str, Any] = {}
+
+    def run_function(self, call: CallExpression):
+        raise NotImplementedError
+
+    def eval(self, expression: Expression) -> LiteralValue | FunctionExpression:
+        if isinstance(expression, LiteralValue):
+            return expression
+        elif isinstance(expression, CallExpression):
+            return self.run_function(expression)
+        elif isinstance(expression, MathExpression):
+            # Well, in fact, there are only 2 operands...
+            a, b = [self.eval(operand) for operand in expression.operands]
+            if expression.operation == '+':
+                return a + b
+            elif expression.operation == '-':
+                return a - b
+            elif expression.operation == '*':
+                return a * b
+            elif expression.operation == '/':
+                return a / b
+        elif isinstance(expression, ReferenceExpression):
+            return self.objects[expression.name]
+        elif isinstance(expression, FunctionExpression):
+            # function definition is not a function call!
+            return expression
+        else:
+            raise TypeError(f"Can't evaluate {expression}")
+
+    def run(self, expressions: list[Expression]):
+        for expression in expressions:
+            if isinstance(expression, AssignmentExpression):
+                # TODO: var types may be different
+                self.objects[expression.name] = self.eval(expression.value)
+            elif isinstance(expression, CallExpression):
+                self.run_function(expression)
+            elif isinstance(expression, FunctionExpression):
+                self.objects[expression.name] = expression
+            else:
+                self.eval(expression)

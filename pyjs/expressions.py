@@ -20,24 +20,37 @@ class AssignmentExpression(Expression):
 
 
 @dataclass
-class ArrayExpression(Expression):
-    array: list[Expression]
-
-
-@dataclass
 class CallExpression(Expression):
     name: str
     args: list[Expression]
 
 
+class LiteralValue(Expression, ABC):
+    pass
+
+
 @dataclass
-class StringLiteral(Expression):
+class StringLiteral(LiteralValue):
     value: str
 
+    def __add__(self, other):
+        return StringLiteral(f"{self.value}{other.value}")
 
 @dataclass
-class NumberLiteral(Expression):
+class NumberLiteral(LiteralValue):
     value: float
+
+    def __add__(self, other):
+        return NumberLiteral(self.value + other.value)
+
+    def __sub__(self, other):
+        return NumberLiteral(self.value - other.value)
+
+    def __mul__(self, other):
+        return NumberLiteral(self.value * other.value)
+
+    def __truediv__(self, other):
+        return NumberLiteral(self.value / other.value)
 
 
 @dataclass
