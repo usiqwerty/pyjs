@@ -44,6 +44,7 @@ types = [
     ('TEMPLATE', r'`[\w\W]+?`')
 ]
 general = [
+    ('ARROW', r'=>'),
     ('ASSIGN', r'='),
     ('REF', r'[A-Za-z]+[A-Za-z0-9]*'),
 
@@ -56,7 +57,6 @@ general = [
     ('QMARK', r'\?'),
     ('EMARK', r'!'),
 
-    ('ARROW', r'=>'),
 
     ('COMMENT', r'//'),
     ('BCOMMSTART', r'/\s*\*'),

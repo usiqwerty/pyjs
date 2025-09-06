@@ -53,6 +53,6 @@ class MathExpression(Expression):
 
 @dataclass
 class FunctionExpression(Expression):
-    name: str
+    name: str | None
     args: list[ReferenceExpression]
     body: list[Expression]

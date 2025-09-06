@@ -91,13 +91,37 @@ def combine(tokens: Generator[Token, None, None], stop_on_first=False):
                 assert isinstance(prev, FunctionExpression)
                 prev.body = join_assignments_values(sub)
                 is_function_def = False
-
+            else:
+                groups.append(sub)
         elif tok.type == "RCBRACKET":
             return groups
         elif tok.type == 'KEYWORD':
             if tok.value == 'function':
                 is_function_def = True
             groups.append(tok)
+        elif tok.type == "ARROW":
+            if isinstance(groups[-1], CombinedTokens):
+                arrow_args_combined = groups.pop()
+                sub = combine(tokens)
+                if isinstance(sub[0], list):
+                    sub = join_assignments_values(sub[0])
+                print(f"arrow func sub {sub}")
+                groups.append(
+                    FunctionExpression(None, list(arrow_args_combined.as_args()), sub)
+                )
+            elif isinstance(groups[-1], ReferenceExpression):
+                args = [groups.pop()]
+                sub = combine(tokens)
+                if isinstance(sub[0], list):
+                    sub = join_assignments_values(sub[0])
+                print(f"arrow func sub {sub}")
+                groups.append(
+                    FunctionExpression(None, args, sub)
+                )
+            else:
+                raise Expression
+
+
         else:
             print(f"Unhadled token: {tok}")
             groups.append(tok)
