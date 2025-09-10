@@ -69,3 +69,8 @@ class FunctionExpression(Expression):
     name: str | None
     args: list[ReferenceExpression]
     body: list[Expression]
+
+
+@dataclass
+class ReturnExpression(Expression):
+    value: Expression

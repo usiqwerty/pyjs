@@ -1,7 +1,8 @@
 import pytest
 
 from pyjs.environment import Environment
-from pyjs.expressions import MathExpression, NumberLiteral, StringLiteral, FunctionExpression, CallExpression
+from pyjs.expressions import MathExpression, NumberLiteral, StringLiteral, FunctionExpression, CallExpression, \
+    ReturnExpression
 
 
 @pytest.mark.parametrize(
@@ -55,7 +56,11 @@ def test_eval_math_on_strings(a, b, res, op):
 
 def test_eval_func():
     env = Environment()
-    f = FunctionExpression("func", [], [MathExpression('+', [auto_literal(1), auto_literal(1)])])
+    f = FunctionExpression("func", [], [
+        ReturnExpression(
+            MathExpression('+', [auto_literal(1), auto_literal(1)])
+        )
+    ])
     env.run([f])
     assert env.objects == {f.name: f}
-    assert env.eval(CallExpression("func", [])) == 2
+    assert env.eval(CallExpression("func", [])) == NumberLiteral(2)

@@ -1,5 +1,6 @@
 from pyjs import parse
-from pyjs.expressions import FunctionExpression, AssignmentExpression, NumberLiteral, ReferenceExpression
+from pyjs.expressions import FunctionExpression, AssignmentExpression, NumberLiteral, ReferenceExpression, \
+    ReturnExpression
 
 
 def test_parse_functions():
@@ -69,12 +70,22 @@ def test_parse_arrow_functions_arg_no_brackets():
     ]
 
 
+def test_parse_func_return():
+    r = list(parse("a => {return b}"))
+    assert r == [
+        FunctionExpression(None, [ReferenceExpression('a')],
+                           [
+                               ReturnExpression(ReferenceExpression('b'))
+                           ])
+    ]
+
+
 def test_parse_arrow_functions_no_arg_no_body_brackets():
     r = list(parse("() => expression"))
     assert r == [
         FunctionExpression(None, [],
                            [
-                               ReferenceExpression('expression')
+                               ReturnExpression(ReferenceExpression('expression'))
                            ])
     ]
 
@@ -84,6 +95,6 @@ def test_parse_arrow_functions_no_brackets():
     assert r == [
         FunctionExpression(None, [ReferenceExpression('param')],
                            [
-                               ReferenceExpression('expression')
+                               ReturnExpression(ReferenceExpression('expression'))
                            ])
     ]

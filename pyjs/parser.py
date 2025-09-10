@@ -2,7 +2,8 @@ from dataclasses import dataclass
 from typing import Iterable, Generator
 
 from pyjs.expressions import (AssignmentExpression, ReferenceExpression, StringLiteral, NumberLiteral,
-                              CallExpression, Expression, MathExpression, TemplateLiteral, FunctionExpression)
+                              CallExpression, Expression, MathExpression, TemplateLiteral, FunctionExpression,
+                              ReturnExpression)
 from pyjs.tokenizer import tokenize, assignation_keywords, Token
 
 
@@ -26,6 +27,7 @@ def combine(tokens: Generator[Token, None, None], stop_on_first=False):
 
     was_dot = False
     is_function_def = False
+    is_ret = False
     for tok in tokens:
         # print(tok.type, tok.value)
         if tok.type == "SPACE":
@@ -98,13 +100,21 @@ def combine(tokens: Generator[Token, None, None], stop_on_first=False):
         elif tok.type == 'KEYWORD':
             if tok.value == 'function':
                 is_function_def = True
-            groups.append(tok)
+                groups.append(tok)
+            elif tok.value == 'return':
+                groups.append(ReturnExpression(None))
+            else:
+                groups.append(tok)
         elif tok.type == "ARROW":
             if isinstance(groups[-1], CombinedTokens):
                 arrow_args_combined = groups.pop()
                 sub = combine(tokens)
-                if isinstance(sub[0], list):
+                if isinstance(sub[0], list): # curly brackets, explicit return
                     sub = join_assignments_values(sub[0])
+                else:
+                    # implicit return
+                    last = sub.pop()
+                    sub.append(ReturnExpression(last))
                 print(f"arrow func sub {sub}")
                 groups.append(
                     FunctionExpression(None, list(arrow_args_combined.as_args()), sub)
@@ -112,8 +122,12 @@ def combine(tokens: Generator[Token, None, None], stop_on_first=False):
             elif isinstance(groups[-1], ReferenceExpression):
                 args = [groups.pop()]
                 sub = combine(tokens)
-                if isinstance(sub[0], list):
+                if isinstance(sub[0], list):  # curly brackets, explicit return
                     sub = join_assignments_values(sub[0])
+                else:
+                    # implicit return
+                    last = sub.pop()
+                    sub.append(ReturnExpression(last))
                 print(f"arrow func sub {sub}")
                 groups.append(
                     FunctionExpression(None, args, sub)
@@ -136,7 +150,7 @@ def join_assignments_values(groups: list[Expression]):
     result = []
 
     for i in range(len(groups)):
-        if i > 0 and isinstance(groups[i - 1], AssignmentExpression) and groups[i - 1].value is None:
+        if i > 0 and isinstance(groups[i - 1], AssignmentExpression|ReturnExpression) and groups[i - 1].value is None:
             result[-1].value = groups[i]
         else:
             result.append(groups[i])

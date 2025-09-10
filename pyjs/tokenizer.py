@@ -16,7 +16,8 @@ class Token(NamedTuple):
 
 assignation_keywords = {"const", "let", "var"}
 keywords = {
-               "function"
+               "function",
+                "return"
            } | assignation_keywords
 brackets = [
     ('LBRACKET', r'\('),

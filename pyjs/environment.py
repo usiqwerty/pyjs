@@ -1,14 +1,18 @@
 from typing import Any
 
 from pyjs.expressions import Expression, AssignmentExpression, ReferenceExpression, CallExpression, \
-    LiteralValue, MathExpression, FunctionExpression
+    LiteralValue, MathExpression, FunctionExpression, ReturnExpression
 
 
 class Environment:
     objects: dict[str, Any] = {}
 
     def run_function(self, call: CallExpression):
-        raise NotImplementedError
+        func: FunctionExpression = self.objects.get(call.name)
+        for expr in func.body:
+            if isinstance(expr, ReturnExpression):
+                return self.eval(expr.value)
+            self.eval(expr)
 
     def eval(self, expression: Expression) -> LiteralValue | FunctionExpression:
         if isinstance(expression, LiteralValue):
