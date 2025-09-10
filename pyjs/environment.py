@@ -1,4 +1,4 @@
-from types import FunctionType
+from types import FunctionType, MethodType
 from typing import Any
 
 from pyjs.expressions import Expression, AssignmentExpression, ReferenceExpression, CallExpression, \
@@ -22,7 +22,7 @@ class Environment:
 
     def run_function(self, call: CallExpression):
         func = self.resolve(call.name)
-        if isinstance(func, FunctionType):
+        if isinstance(func, FunctionType|MethodType): # maybe just callable?
             args = list(self.pythonnize(call.args))
             ret_val = func(*args)
             print(type(ret_val), ret_val)
@@ -30,7 +30,8 @@ class Environment:
                 return NumberLiteral(ret_val)
             if isinstance(ret_val, str):
                 return StringLiteral(ret_val)
-            raise TypeError(f"Unsupported return type for native function ({type(ret_val)})")
+            # we support custom objects
+            return ret_val
 
         func: FunctionExpression
         for expr in func.body:
