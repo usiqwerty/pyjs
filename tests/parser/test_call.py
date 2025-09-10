@@ -1,5 +1,5 @@
 from pyjs import parse
-from pyjs.expressions import CallExpression, NumberLiteral, ReferenceExpression
+from pyjs.expressions import CallExpression, NumberLiteral, ReferenceExpression, MathExpression
 
 
 def test_parse_call():
@@ -24,4 +24,18 @@ def test_parse_call_on_call():
     )
     assert r == [
         CallExpression(last_ref, [])
+    ]
+
+
+def test_call_on_call_in_math():
+    r = list(parse("1+a.b().c()"))
+
+    assert r == [
+        MathExpression('+', [
+            NumberLiteral(1.0),
+            CallExpression(
+                ReferenceExpression("c", CallExpression(ReferenceExpression('b', ReferenceExpression('a')), []))
+                , [])
+        ])
+
     ]

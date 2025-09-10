@@ -37,19 +37,25 @@ def combine(tokens: Generator[Token, None, None], stop_on_first=False):
             sub = combine(tokens)
             print(f"{sub=}")
             comb = CombinedTokens(sub)
-            if groups and isinstance(groups[-1], ReferenceExpression):
+            if groups and isinstance(groups[-1], ReferenceExpression|MathExpression):
                 args = list(comb.as_args())
-                call_expression = CallExpression(groups[-1], args)
+                if isinstance(groups[-1], ReferenceExpression):
+                    call_expression = CallExpression(groups[-1], args)
 
-                if (len(groups) >= 2
-                        and isinstance(groups[-2], Token)
-                        and groups[-2].type == "KEYWORD"
-                        and groups[-2].value == "function"):
-                    ref = groups.pop()
-                    fun_kw = groups.pop()
-                    groups.append(FunctionExpression(ref.name, args, None))
+                    if (len(groups) >= 2
+                            and isinstance(groups[-2], Token)
+                            and groups[-2].type == "KEYWORD"
+                            and groups[-2].value == "function"):
+                        ref = groups.pop()
+                        fun_kw = groups.pop()
+                        groups.append(FunctionExpression(ref.name, args, None))
+                    else:
+                        groups[-1] = call_expression
                 else:
-                    groups[-1] = call_expression
+                    last_operand = groups[-1].operands.pop()
+                    call_expression = CallExpression(last_operand, args)
+                    groups[-1].operands.append(call_expression)
+
             else:
                 groups.append(comb)
         elif tok.type == "RBRACKET":
@@ -68,14 +74,20 @@ def combine(tokens: Generator[Token, None, None], stop_on_first=False):
                     groups.append(ReferenceExpression(tok.value, parent=prev))
                 elif isinstance(prev, MathExpression):
                     last_oper = prev.operands.pop()
-                    if isinstance(last_oper, ReferenceExpression):
-                        last_oper.name = last_oper.name + f".{tok.value}"
-                        prev.operands.append(last_oper)
-                        groups.append(prev)
+                    if isinstance(last_oper, ReferenceExpression|CallExpression):
+                        if isinstance(last_oper, ReferenceExpression):
+                            last_oper.name = last_oper.name + f".{tok.value}"
+                            prev.operands.append(last_oper)
+                            groups.append(prev)
+                        else:
+                            last_oper = ReferenceExpression(tok.value, last_oper)
+                            prev.operands.append(last_oper)
+
+                            groups.append(prev)
                     else:
                         raise TypeError(last_oper)
                 else:
-                    raise TypeError(f"can't handle dot referece here {prev}")
+                    raise TypeError(f"can't handle dot referece here {tok} {prev}")
             else:
                 groups.append(ReferenceExpression(tok.value))
         elif tok.type == 'ASSIGN':
