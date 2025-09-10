@@ -1,11 +1,14 @@
 from typing import Any
 
 from pyjs.expressions import Expression, AssignmentExpression, ReferenceExpression, CallExpression, \
-    LiteralValue, MathExpression, FunctionExpression, ReturnExpression
+    LiteralValue, MathExpression, FunctionExpression, ReturnExpression, NumberLiteral, StringLiteral
 
 
 class Environment:
-    objects: dict[str, Any] = {}
+    objects: dict[str, Any]
+
+    def __init__(self):
+        self.objects = {}
 
     def run_function(self, call: CallExpression):
         func: FunctionExpression = self.objects.get(call.name)
@@ -31,7 +34,7 @@ class Environment:
             elif expression.operation == '/':
                 return a / b
         elif isinstance(expression, ReferenceExpression):
-            return self.objects[expression.name]
+            return self.resolve(expression)
         elif isinstance(expression, FunctionExpression):
             # function definition is not a function call!
             return expression
@@ -49,3 +52,15 @@ class Environment:
                 self.objects[expression.name] = expression
             else:
                 self.eval(expression)
+
+    def resolve(self, reference: ReferenceExpression):
+        if reference.parent is None:
+            return self.objects[reference.name]
+        obj = self.eval(reference.parent)
+        # can read python objects
+        value = getattr(obj, reference.name)
+        if isinstance(value, int | float):
+            return NumberLiteral(value)
+        if isinstance(value, str):
+            return StringLiteral(value)
+        return value
