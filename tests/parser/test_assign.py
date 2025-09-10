@@ -1,5 +1,5 @@
 from pyjs import parse
-from pyjs.expressions import CallExpression, NumberLiteral, AssignmentExpression
+from pyjs.expressions import CallExpression, NumberLiteral, AssignmentExpression, MathExpression, ReferenceExpression
 
 
 def test_parse_assign_literal():
@@ -34,4 +34,13 @@ def test_parse_assign_call_args():
         AssignmentExpression('const', "a", CallExpression('b', [NumberLiteral(1), NumberLiteral(2)]))
     ]
 
+
+def test_ref_in_math():
+    r = list(parse("a+b.c"))
+    assert r == [
+        MathExpression('+', [
+            ReferenceExpression('a'),
+            ReferenceExpression('b.c'),
+        ])
+    ]
 

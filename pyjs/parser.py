@@ -59,8 +59,21 @@ def combine(tokens: Generator[Token, None, None], stop_on_first=False):
         elif tok.type == "REF":
             if was_dot:
                 was_dot = False
+                for g in groups:
+                    print(g)
                 prev = groups.pop()
-                groups.append(ReferenceExpression(prev.name + f".{tok.value}"))
+                if isinstance(prev, ReferenceExpression):
+                    groups.append(ReferenceExpression(prev.name + f".{tok.value}"))
+                elif isinstance(prev, MathExpression):
+                    last_oper = prev.operands.pop()
+                    if isinstance(last_oper, ReferenceExpression):
+                        last_oper.name = last_oper.name + f".{tok.value}"
+                        prev.operands.append(last_oper)
+                        groups.append(prev)
+                    else:
+                        raise TypeError(last_oper)
+                else:
+                    raise TypeError(f"can't handle dot referece here {prev}")
             else:
                 groups.append(ReferenceExpression(tok.value))
         elif tok.type == 'ASSIGN':
@@ -75,7 +88,8 @@ def combine(tokens: Generator[Token, None, None], stop_on_first=False):
         elif tok.type == "MATH":
             prev = groups.pop()
             next = combine(tokens, True)
-            groups.append(MathExpression(tok.value, [prev, next]))
+            assert len(next) == 1
+            groups.append(MathExpression(tok.value, [prev, next[0]]))
         elif tok.type == "STRING":
             groups.append(StringLiteral(tok.value[1:-1]))
         elif tok.type == "NUMBER":
