@@ -18,6 +18,6 @@ tree = pyjs.parse("console.log('hello, world')")
 - [ ] loops
 - [x] named `function` definitions
 - [ ] anonymous `function` definitions
-- [ ] arrow function definitions
+- [x] arrow function definitions
 - [ ] string templates
 - [ ] async functions
