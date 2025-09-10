@@ -10,7 +10,7 @@ class Expression(ABC):
 @dataclass
 class ReferenceExpression(Expression):
     name: str
-
+    parent: Expression | None = None
 
 @dataclass
 class AssignmentExpression(Expression):
@@ -21,7 +21,7 @@ class AssignmentExpression(Expression):
 
 @dataclass
 class CallExpression(Expression):
-    name: str
+    name: ReferenceExpression
     args: list[Expression]
 
 

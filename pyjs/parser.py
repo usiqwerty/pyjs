@@ -39,7 +39,7 @@ def combine(tokens: Generator[Token, None, None], stop_on_first=False):
             comb = CombinedTokens(sub)
             if groups and isinstance(groups[-1], ReferenceExpression):
                 args = list(comb.as_args())
-                call_expression = CallExpression(groups[-1].name, args)
+                call_expression = CallExpression(groups[-1], args)
 
                 if (len(groups) >= 2
                         and isinstance(groups[-2], Token)
@@ -63,7 +63,9 @@ def combine(tokens: Generator[Token, None, None], stop_on_first=False):
                     print(g)
                 prev = groups.pop()
                 if isinstance(prev, ReferenceExpression):
-                    groups.append(ReferenceExpression(prev.name + f".{tok.value}"))
+                    groups.append(ReferenceExpression(tok.value, parent=prev))
+                elif isinstance(prev, CallExpression):
+                    groups.append(ReferenceExpression(tok.value, parent=prev))
                 elif isinstance(prev, MathExpression):
                     last_oper = prev.operands.pop()
                     if isinstance(last_oper, ReferenceExpression):

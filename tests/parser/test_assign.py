@@ -16,22 +16,22 @@ def test_parse_assign_literal():
 def test_parse_assign_call():
     r = list(parse("a = b()"))
     assert r == [
-        AssignmentExpression(None, "a", CallExpression('b', []))
+        AssignmentExpression(None, "a", CallExpression(ReferenceExpression('b'), []))
     ]
     r = list(parse("const a = b()"))
     assert r == [
-        AssignmentExpression('const', "a", CallExpression('b', []))
+        AssignmentExpression('const', "a", CallExpression(ReferenceExpression('b'), []))
     ]
 
 
 def test_parse_assign_call_args():
     r = list(parse("a = b(1, 2)"))
     assert r == [
-        AssignmentExpression(None, "a", CallExpression('b', [NumberLiteral(1), NumberLiteral(2)]))
+        AssignmentExpression(None, "a", CallExpression(ReferenceExpression('b'), [NumberLiteral(1), NumberLiteral(2)]))
     ]
     r = list(parse("const a = b(1, 2)"))
     assert r == [
-        AssignmentExpression('const', "a", CallExpression('b', [NumberLiteral(1), NumberLiteral(2)]))
+        AssignmentExpression('const', "a", CallExpression(ReferenceExpression('b'), [NumberLiteral(1), NumberLiteral(2)]))
     ]
 
 
