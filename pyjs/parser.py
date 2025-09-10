@@ -76,8 +76,8 @@ def combine(tokens: Generator[Token, None, None], stop_on_first=False):
                     last_oper = prev.operands.pop()
                     if isinstance(last_oper, ReferenceExpression|CallExpression):
                         if isinstance(last_oper, ReferenceExpression):
-                            last_oper.name = last_oper.name + f".{tok.value}"
-                            prev.operands.append(last_oper)
+                            # last_oper.name = last_oper.name + f".{tok.value}"
+                            prev.operands.append(ReferenceExpression(tok.value, last_oper) )
                             groups.append(prev)
                         else:
                             last_oper = ReferenceExpression(tok.value, last_oper)

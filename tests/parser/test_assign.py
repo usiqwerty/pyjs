@@ -40,7 +40,7 @@ def test_ref_in_math():
     assert r == [
         MathExpression('+', [
             ReferenceExpression('a'),
-            ReferenceExpression('b.c'),
+            ReferenceExpression('c', ReferenceExpression('b')),
         ])
     ]
 
