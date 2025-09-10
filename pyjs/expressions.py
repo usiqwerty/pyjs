@@ -1,6 +1,6 @@
 from abc import ABC
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, Any
 
 
 class Expression(ABC):
@@ -26,7 +26,7 @@ class CallExpression(Expression):
 
 
 class LiteralValue(Expression, ABC):
-    pass
+    value: Any
 
 
 @dataclass

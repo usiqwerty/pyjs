@@ -4,9 +4,7 @@ from typing import Any
 from pyjs.expressions import Expression, AssignmentExpression, ReferenceExpression, CallExpression, \
     LiteralValue, MathExpression, FunctionExpression, ReturnExpression, NumberLiteral, StringLiteral
 
-def pythonnize_args(args: list[LiteralValue]):
-    for arg in args:
-        yield arg.value
+
 
 class Environment:
     objects: dict[str, Any]
@@ -14,11 +12,20 @@ class Environment:
     def __init__(self):
         self.objects = {}
 
+    def pythonnize(self, args: list[LiteralValue | ReferenceExpression]):
+        for arg in args:
+            if isinstance(arg, LiteralValue):
+                yield arg.value
+            elif isinstance(arg, ReferenceExpression):
+                # le cringe
+                yield list(self.pythonnize([self.resolve(arg)]))[0]
+
     def run_function(self, call: CallExpression):
         func = self.resolve(call.name)
         if isinstance(func, FunctionType):
-            args = list(pythonnize_args(call.args))
+            args = list(self.pythonnize(call.args))
             ret_val = func(*args)
+            print(type(ret_val), ret_val)
             if isinstance(ret_val, int|float):
                 return NumberLiteral(ret_val)
             if isinstance(ret_val, str):

@@ -1,5 +1,6 @@
 from pyjs import parse
 from pyjs.expressions import CallExpression, NumberLiteral, AssignmentExpression, MathExpression, ReferenceExpression
+from tests.runner.test_eval import auto_literal
 
 
 def test_parse_assign_literal():
@@ -44,3 +45,14 @@ def test_ref_in_math():
         ])
     ]
 
+
+def test_multiple_lines():
+    r = list(parse("a=3\nx = f(a)"))
+    assert r == [
+        AssignmentExpression(None, "a", auto_literal(3)),
+        AssignmentExpression(None, "x", CallExpression(
+            ReferenceExpression("f"), [
+                ReferenceExpression("a")
+            ]
+        )),
+    ]
