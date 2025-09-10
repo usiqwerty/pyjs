@@ -11,7 +11,7 @@ class Environment:
         self.objects = {}
 
     def run_function(self, call: CallExpression):
-        func: FunctionExpression = self.objects.get(call.name)
+        func: FunctionExpression = self.resolve(call.name)
         for expr in func.body:
             if isinstance(expr, ReturnExpression):
                 return self.eval(expr.value)
