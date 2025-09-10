@@ -1,8 +1,12 @@
+from types import FunctionType
 from typing import Any
 
 from pyjs.expressions import Expression, AssignmentExpression, ReferenceExpression, CallExpression, \
     LiteralValue, MathExpression, FunctionExpression, ReturnExpression, NumberLiteral, StringLiteral
 
+def pythonnize_args(args: list[LiteralValue]):
+    for arg in args:
+        yield arg.value
 
 class Environment:
     objects: dict[str, Any]
@@ -11,7 +15,17 @@ class Environment:
         self.objects = {}
 
     def run_function(self, call: CallExpression):
-        func: FunctionExpression = self.resolve(call.name)
+        func = self.resolve(call.name)
+        if isinstance(func, FunctionType):
+            args = list(pythonnize_args(call.args))
+            ret_val = func(*args)
+            if isinstance(ret_val, int|float):
+                return NumberLiteral(ret_val)
+            if isinstance(ret_val, str):
+                return StringLiteral(ret_val)
+            raise TypeError(f"Unsupported return type for native function ({type(ret_val)})")
+
+        func: FunctionExpression
         for expr in func.body:
             if isinstance(expr, ReturnExpression):
                 return self.eval(expr.value)

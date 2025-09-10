@@ -2,7 +2,7 @@ import pytest
 
 from pyjs.environment import Environment
 from pyjs.expressions import MathExpression, NumberLiteral, StringLiteral, FunctionExpression, CallExpression, \
-    ReturnExpression
+    ReturnExpression, ReferenceExpression
 
 
 @pytest.mark.parametrize(
@@ -63,4 +63,4 @@ def test_eval_func():
     ])
     env.run([f])
     assert env.objects == {f.name: f}
-    assert env.eval(CallExpression("func", [])) == NumberLiteral(2)
+    assert env.eval(CallExpression(ReferenceExpression("func"), [])) == NumberLiteral(2)
