@@ -49,7 +49,7 @@ general = [
     ('ASSIGN', r'='),
     ('REF', r'[\w^\d]+[\w]*'),
 
-    ('NEWLINE', r'\n'),
+    ('NEWLINE', '\n'),
     ('SPACE', r'\s+'),
     ('DOT', r'\.'),
     ('COMMA', r','),
@@ -82,7 +82,7 @@ def tokenize(code) -> Generator[Token, None, None]:
         elif kind == 'NEWLINE':
             line_start = mo.end()
             line_num += 1
-            continue
+            # continue
         elif kind == 'SKIP':
             continue
         elif kind == 'MISMATCH':

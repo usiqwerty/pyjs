@@ -21,3 +21,4 @@ tree = pyjs.parse("console.log('hello, world')")
 - [x] arrow function definitions
 - [ ] string templates
 - [ ] async functions
+- [x] comments (ignored)

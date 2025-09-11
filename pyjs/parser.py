@@ -27,10 +27,16 @@ def combine(tokens: Generator[Token, None, None], stop_on_first=False):
 
     was_dot = False
     is_function_def = False
-    is_ret = False
+    is_comment = False
     for tok in tokens:
         # print(tok.type, tok.value)
-        if tok.type == "SPACE":
+        if is_comment:
+            if tok.type == 'NEWLINE':
+                is_comment = False
+                continue
+            else:
+                continue
+        elif tok.type == "SPACE" or tok.type == 'NEWLINE':
             continue
         elif tok.type == "LBRACKET":
             # TODO: may be an anonymous function
@@ -163,7 +169,8 @@ def combine(tokens: Generator[Token, None, None], stop_on_first=False):
             else:
                 raise Expression
 
-
+        elif tok.type == 'COMMENT':
+            is_comment = True
         else:
             print(f"Unhadled token: {tok}")
             groups.append(tok)
