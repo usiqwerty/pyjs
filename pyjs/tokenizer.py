@@ -17,7 +17,9 @@ class Token(NamedTuple):
 assignation_keywords = {"const", "let", "var"}
 keywords = {
                "function",
-                "return"
+                "return",
+                "async",
+                "await"
            } | assignation_keywords
 brackets = [
     ('LBRACKET', r'\('),
@@ -34,10 +36,10 @@ comparison = [
     ('EEQUALS', r'==='),
     ('LT', r'<'),
     ('LE', r'<='),
-    ('LEE', r'<=='),
     ('GT', r'>'),
     ('GE', r'>='),
-    ('GEE', r'>=='),
+    ('NEQUALS', r'!='),
+    ('NEEQUALS', r'!=='),
 ]
 types = [
     ('NUMBER', r'\d+(\.\d*)?'),
@@ -64,7 +66,7 @@ general = [
     ('BCOMMEND', r'\*\s*/'),
     ('MATH', r'[+\-*/]'),
 ]
-token_specification = types + general + comparison + brackets + [('MISMATCH', r'.')]
+token_specification = types + comparison + general + brackets + [('MISMATCH', r'.')]
 
 
 def tokenize(code) -> Generator[Token, None, None]:
