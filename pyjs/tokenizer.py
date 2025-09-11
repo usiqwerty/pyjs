@@ -47,7 +47,7 @@ types = [
 general = [
     ('ARROW', r'=>'),
     ('ASSIGN', r'='),
-    ('REF', r'[A-Za-z]+[A-Za-z0-9]*'),
+    ('REF', r'[\w^\d]+[\w]*'),
 
     ('NEWLINE', r'\n'),
     ('SPACE', r'\s+'),
